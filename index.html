@@ -1,0 +1,359 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cache_toolbox — Non-magical object caching tools for Django &mdash; django-cache-toolbox documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="django-cache-toolbox documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">django-cache-toolbox documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-cache_toolbox"></span><div class="section" id="cache-toolbox-non-magical-object-caching-tools-for-django">
+<h1><a class="reference internal" href="#module-cache_toolbox" title="cache_toolbox"><tt class="xref py py-mod docutils literal"><span class="pre">cache_toolbox</span></tt></a> &#8212; Non-magical object caching tools for Django<a class="headerlink" href="#cache-toolbox-non-magical-object-caching-tools-for-django" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">cache_toolbox</span></tt> is intended to be a lightweight series of independent tools
+to leverage caching within Django projects.</p>
+<p>The tools are deliberately <cite>non-magical</cite>. That is to say, instances are never
+retrieved from caches behind your back and regular Django <tt class="docutils literal"><span class="pre">.filter()</span></tt> /
+<tt class="docutils literal"><span class="pre">.get()</span></tt> queries continue to work exactly as before.</p>
+<p>Because of this, you can introduce <tt class="docutils literal"><span class="pre">cache_toolbox</span></tt> into your project slowly
+when needed rather than &#8220;switching&#8221; to it with invasive changes.</p>
+</div>
+<div class="section" id="links">
+<h2>Links<a class="headerlink" href="#links" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>View/download code</dt>
+<dd><a class="reference external" href="https://github.com/playfire/django-cache-toolbox">https://github.com/playfire/django-cache-toolbox</a></dd>
+<dt>File a bug</dt>
+<dd><a class="reference external" href="https://github.com/playfire/django-cache-toolbox/issues">https://github.com/playfire/django-cache-toolbox/issues</a></dd>
+</dl>
+</div>
+</div>
+<span class="target" id="module-cache_toolbox.core"></span><div class="section" id="core-methods">
+<h1>Core methods<a class="headerlink" href="#core-methods" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="cache_toolbox.core.get_instance">
+<tt class="descclassname">cache_toolbox.core.</tt><tt class="descname">get_instance</tt><big>(</big><em>model</em>, <em>instance_or_pk</em>, <em>timeout=None</em><big>)</big><a class="headerlink" href="#cache_toolbox.core.get_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <tt class="docutils literal"><span class="pre">model</span></tt> instance with a primary key of <tt class="docutils literal"><span class="pre">instance_or_pk</span></tt>.</p>
+<p>If the data is cached it will be returned from there, otherwise the regular
+Django ORM is queried for this instance and the data stored in the cache.</p>
+<p>If omitted, the timeout value defaults to
+<tt class="docutils literal"><span class="pre">settings.CACHE_TOOLBOX_DEFAULT_TIMEOUT</span></tt> instead of 0 (zero).</p>
+<p>Example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">get_instance</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c"># Cache miss</span>
+<span class="go">&lt;User: lamby&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_instance</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c"># Cache hit</span>
+<span class="go">&lt;User: lamby&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">get_instance</span><span class="p">(</span><span class="n">User</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="cache_toolbox.core.delete_instance">
+<tt class="descclassname">cache_toolbox.core.</tt><tt class="descname">delete_instance</tt><big>(</big><em>model</em>, <em>*instance_or_pk</em><big>)</big><a class="headerlink" href="#cache_toolbox.core.delete_instance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Purges the cache keys for the instances of this model.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="cache_toolbox.core.instance_key">
+<tt class="descclassname">cache_toolbox.core.</tt><tt class="descname">instance_key</tt><big>(</big><em>model</em>, <em>instance_or_pk</em><big>)</big><a class="headerlink" href="#cache_toolbox.core.instance_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cache key for this (model, instance) pair.</p>
+</dd></dl>
+
+</div>
+<span class="target" id="module-cache_toolbox.model"></span><div class="section" id="caching-model-instances">
+<h1>Caching model instances<a class="headerlink" href="#caching-model-instances" title="Permalink to this headline">¶</a></h1>
+<p><tt class="docutils literal"><span class="pre">cache_model</span></tt> adds utility methods to a model to obtain <tt class="docutils literal"><span class="pre">ForeignKey</span></tt>
+instances via the cache.</p>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">cache_model</span><span class="p">(</span><span class="n">Foo</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span>
+<span class="go">&lt;Foo: &gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Foo</span><span class="o">.</span><span class="n">get_cached</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="c"># Cache miss</span>
+<span class="go">&lt;Foo: &gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">get_cached</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="c"># Cache hit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">name</span>
+<span class="go">u&#39;a&#39;</span>
+</pre></div>
+</div>
+<p>Instances returned from <tt class="docutils literal"><span class="pre">get_cached</span></tt> are real model instances:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">get_cached</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span> <span class="c"># Cache hit</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="go">&lt;class &#39;__main__.models.A&#39;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">pk</span>
+<span class="go">1L</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="invalidation">
+<h2>Invalidation<a class="headerlink" href="#invalidation" title="Permalink to this headline">¶</a></h2>
+<p>Invalidation is performed automatically upon saving or deleting a <tt class="docutils literal"><span class="pre">Foo</span></tt>
+instance:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;a&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">get_cached</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">name</span>
+<span class="go">u&#39;b&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">a</span> <span class="o">=</span> <span class="n">Foo</span><span class="o">.</span><span class="n">get_cached</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">pk</span><span class="p">)</span>
+<span class="gp">... </span><span class="n">Foo</span><span class="o">.</span><span class="n">DoesNotExist</span>
+</pre></div>
+</div>
+</div>
+</div>
+<span class="target" id="module-cache_toolbox.relation"></span><div class="section" id="caching-instances-via-related-name">
+<h1>Caching instances via <tt class="docutils literal"><span class="pre">related_name</span></tt><a class="headerlink" href="#caching-instances-via-related-name" title="Permalink to this headline">¶</a></h1>
+<p><tt class="docutils literal"><span class="pre">cache_relation</span></tt> adds utility methods to a model to obtain <tt class="docutils literal"><span class="pre">related_name</span></tt>
+instances via the cache.</p>
+<div class="section" id="id1">
+<h2>Usage<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="kn">import</span> <span class="n">User</span>
+
+<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">OneToOneField</span><span class="p">(</span>
+        <span class="n">User</span><span class="p">,</span>
+        <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="n">related_name</span><span class="o">=</span><span class="s">&#39;foo&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">cache_relation</span><span class="p">(</span><span class="n">User</span><span class="o">.</span><span class="n">foo</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span><span class="o">.</span><span class="n">foo_cache</span> <span class="c"># Cache miss - hits the database</span>
+<span class="go">&lt;Foo: &gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span><span class="o">.</span><span class="n">foo_cache</span> <span class="c"># Cache hit - no database access</span>
+<span class="go">&lt;Foo: &gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span><span class="o">.</span><span class="n">foo</span> <span class="c"># Regular lookup - hits the database</span>
+<span class="go">&lt;Foo: &gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span><span class="o">.</span><span class="n">foo_cache</span> <span class="c"># Special-case: Will not hit cache or database.</span>
+<span class="go">&lt;Foo: &gt;</span>
+</pre></div>
+</div>
+<p>Accessing <tt class="docutils literal"><span class="pre">user_instance.foo_cache</span></tt> (note the &#8220;_cache&#8221; suffix) will now
+obtain the related <tt class="docutils literal"><span class="pre">Foo</span></tt> instance via the cache. Accessing the original
+<tt class="docutils literal"><span class="pre">user_instance.foo</span></tt> attribute will perform the lookup as normal.</p>
+</div>
+<div class="section" id="id2">
+<h2>Invalidation<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Upon saving (or deleting) the instance, the cache is cleared. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">foo_cache</span> <span class="c"># (Assume cache hit from previous session)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&quot;New name&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">foo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c"># Cache is cleared on save</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pk</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">user</span><span class="o">.</span><span class="n">foo_cache</span> <span class="c"># Cache miss.</span>
+<span class="go">&lt;Foo: &gt;</span>
+</pre></div>
+</div>
+<p>Manual invalidation may also be performed using the following methods:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">user_instance</span><span class="o">.</span><span class="n">foo_cache_clear</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">User</span><span class="o">.</span><span class="n">foo_cache_clear_fk</span><span class="p">(</span><span class="n">user_instance_pk</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Manual invalidation is required if you use <tt class="docutils literal"><span class="pre">.update()</span></tt> methods which the
+<tt class="docutils literal"><span class="pre">post_save</span></tt> and <tt class="docutils literal"><span class="pre">post_delete</span></tt> hooks cannot intercept.</p>
+</div>
+<div class="section" id="support">
+<h2>Support<a class="headerlink" href="#support" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">cache_relation</span></tt> currently only works with <tt class="docutils literal"><span class="pre">OneToOneField</span></tt> fields. Support
+for regular <tt class="docutils literal"><span class="pre">ForeignKey</span></tt> fields is planned.</p>
+</div>
+</div>
+<span class="target" id="module-cache_toolbox.middleware"></span><div class="section" id="cache-backed-authenticationmiddleware">
+<h1>Cache-backed <tt class="docutils literal"><span class="pre">AuthenticationMiddleware</span></tt><a class="headerlink" href="#cache-backed-authenticationmiddleware" title="Permalink to this headline">¶</a></h1>
+<p><tt class="docutils literal"><span class="pre">CacheBackedAuthenticationMiddleware</span></tt> is an
+<tt class="docutils literal"><span class="pre">django.contrib.auth.middlewareo.AuthenticationMiddleware</span></tt> replacement to
+avoid querying the database for a <tt class="docutils literal"><span class="pre">User</span></tt> instance in each request.</p>
+<p>Whilst the built-in <tt class="docutils literal"><span class="pre">AuthenticationMiddleware</span></tt> mechanism will only obtain the
+<tt class="docutils literal"><span class="pre">User</span></tt> instance when it is required, the vast majority of sites will do so on
+every page to render &#8220;Logged in as &#8216;X&#8217;&#8221; text as well to evaluate the result of
+<tt class="docutils literal"><span class="pre">user.is_authenticated()</span></tt> and <tt class="docutils literal"><span class="pre">user.is_superuser</span></tt> to provide conditional
+functionality.</p>
+<p>This middleware eliminates the cost of retrieving this <tt class="docutils literal"><span class="pre">User</span></tt> instance by
+caching it using the <tt class="docutils literal"><span class="pre">cache_toolbox</span></tt> instance caching mechanisms.</p>
+<p>Depending on your average number of queries per page, saving one query per
+request can&#8212;in aggregate&#8212;reduce load on your database. In addition,
+avoiding the database entirely for pages can avoid incurring any connection
+latency in your environment, resulting in faster page loads for your users.</p>
+<p>Saving this data in the cache can also be used as a way of authenticating users
+in systems outside of Django that should not access your database.  For
+example, a &#8220;maintenance mode&#8221; page would be able to render a personalised
+message without touching the database at all but rather authenticating via the
+cache.</p>
+<p><tt class="docutils literal"><span class="pre">CacheBackedAuthenticationMiddleware</span></tt> is <tt class="docutils literal"><span class="pre">AUTHENTICATION_BACKENDS</span></tt> agnostic.</p>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>The cache and session backends are still accessed on each request - we are
+simply assuming that they are cheaper (or otherwise more preferable) to access
+than your database. (In the future, signed cookies may allow us to avoid this
+lookup altogether &#8211; whilst we could not safely save <tt class="docutils literal"><span class="pre">User.password</span></tt> in a
+cookie, we could use delayed loading to pull it out when needed.)</p>
+<p>Another alternative solution would be to store the attributes in the user&#8217;s
+session instead of in the cache. This would save the cache hit on every request
+as all the relevant data would be pulled in one go from the session backend.
+However, this has two main disadvantages:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Session keys are not deterministic &#8211; after making changes to an
+<tt class="docutils literal"><span class="pre">auth_user</span></tt> row in the database, you cannot determine the user&#8217;s session
+key to flush the now out-of-sync data (and doing so would log them out
+anyway).</li>
+<li>Stores data per-session rather than per-user &#8211; if a user logs in from
+multiple computers the data is duplicated in each session. This problem is
+compounded by most projects wishing to avoid expiring session data as long
+as possible (in addition to storing sessions in persistent stores).</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="id3">
+<h2>Usage<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>To use, find <tt class="docutils literal"><span class="pre">MIDDLEWARE_CLASSES</span></tt> in your <tt class="docutils literal"><span class="pre">settings.py</span></tt> and replace:</p>
+<div class="highlight-python"><pre>MIDDLEWARE_CLASSES = [
+    ...
+    django.contrib.auth.middleware.AuthenticationMiddleware,
+    ...
+]</pre>
+</div>
+<p>with:</p>
+<div class="highlight-python"><pre>MIDDLEWARE_CLASSES = [
+    ...
+    cache_toolbox.middleware.CacheBackedAuthenticationMiddleware,
+    ...
+]</pre>
+</div>
+<p>You should confirm you are using a <tt class="docutils literal"><span class="pre">SESSION_ENGINE</span></tt> that doesn&#8217;t query the
+database for each request. The built-in <tt class="docutils literal"><span class="pre">cached_db</span></tt> engine is the safest
+choice for most environments but you may be happy with the trade-offs of the
+<tt class="docutils literal"><span class="pre">memcached</span></tt> backend - see the Django documentation for more details.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/playfire.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">cache_toolbox</span></tt> &#8212; Non-magical object caching tools for Django</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#links">Links</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#core-methods">Core methods</a></li>
+<li><a class="reference internal" href="#caching-model-instances">Caching model instances</a><ul>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#invalidation">Invalidation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#caching-instances-via-related-name">Caching instances via <tt class="docutils literal"><span class="pre">related_name</span></tt></a><ul>
+<li><a class="reference internal" href="#id1">Usage</a></li>
+<li><a class="reference internal" href="#id2">Invalidation</a></li>
+<li><a class="reference internal" href="#support">Support</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#cache-backed-authenticationmiddleware">Cache-backed <tt class="docutils literal"><span class="pre">AuthenticationMiddleware</span></tt></a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#id3">Usage</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">django-cache-toolbox documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011 UUMC Ltd..
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
