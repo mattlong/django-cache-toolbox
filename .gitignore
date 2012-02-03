@@ -1,2 +1,6 @@
 *.pyc
 docs/_build
+
+*.swp
+dist
+*.egg-info
