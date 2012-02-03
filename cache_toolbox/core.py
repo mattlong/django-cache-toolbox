@@ -94,7 +94,7 @@ def instance_key(model, instance_or_pk):
     Returns the cache key for this (model, instance) pair.
     """
 
-    return '%s.%s:%d' % (
+    return '%s.%s:%s' % (
         model._meta.app_label,
         model._meta.module_name,
         getattr(instance_or_pk, 'pk', instance_or_pk),
