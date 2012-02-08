@@ -41,7 +41,8 @@ Invalidation
 ~~~~~~~~~~~~
 
 Invalidation is performed automatically upon saving or deleting a ``Foo``
-instance::
+instance. If aggressive_caching is set to True, cache entry will be updated
+rather than deleted upon saving::
 
     >>> a = Foo.objects.create(name='a')
     >>> a.name = 'b'
@@ -56,17 +57,24 @@ instance::
 
 from django.db.models.signals import post_save, post_delete
 
-from .core import get_instance, delete_instance
+from .core import get_instance, delete_instance, update_instance
 
-def cache_model(model, timeout=None):
+def cache_model(model, timeout=None, aggressive_caching=False):
     if hasattr(model, 'get_cached'):
         # Already patched
         return
 
+    def update_cache(sender, instance, *args, **kwargs):
+        update_instance(sender, instance)
+
     def clear_cache(sender, instance, *args, **kwargs):
         delete_instance(sender, instance)
 
-    post_save.connect(clear_cache, sender=model, weak=False)
+    if aggressive_caching:
+        post_save.connect(update_cache, sender=model, weak=False)
+    else:
+        post_save.connect(clear_cache, sender=model, weak=False)
+
     post_delete.connect(clear_cache, sender=model, weak=False)
 
     @classmethod
